@@ -4,8 +4,5 @@ Static site for later hosting on GitHub Pages. No build step. Serve the folder w
 
 This is the **public** build:
 
-- The flyover map keeps the “did a flight pass over me?” lookup, YouTube links, Facebook photo links, and a Lightroom best-of layer.
-- A few private areas are left out of the tracks and photos. Shelbyville Municipal Airport (KGEZ) is shown.
-- The history page has yearly totals and public performance, photo, video, light, and exposure stats. It does not include passenger names, currency, local file paths, or maps of private sites.
-
-This folder is the public preview only; it has not been published.
+- The flyover map keeps the “did a flight pass over me?” lookup, YouTube links, Facebook photo links, and a Lightroom best-of layer. Flight tracks are shown in full, including around home and the former house.
+- The history page has yearly totals and public performance, photo, video, light, and exposure stats. It does not include passenger names, currency, local file paths, or a logbook-vs-GPS cross-check.

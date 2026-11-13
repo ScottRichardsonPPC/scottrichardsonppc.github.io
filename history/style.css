@@ -75,6 +75,8 @@ table.recs td:last-child { font-weight:600; white-space:nowrap; }
 .charts img, .chart-row img { width:100%; height:auto; border-radius:8px; background:#fff; }
 .chart-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 @media (max-width:800px){ .chart-row { grid-template-columns:1fr; } header.hist-head { position:static; } }
+html { scroll-padding-top: 170px; }
+section { scroll-margin-top: 170px; }
 .hl { margin:0; padding-left:1.2em; }
 .hl li { margin:0 0 6px; }
 .two { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
@@ -85,6 +87,3 @@ table.recs td:last-child { font-weight:600; white-space:nowrap; }
 .conf.low { color:#b3261e; }
 #month-wrap label { font-weight:600; margin-right:8px; }
 .filter { margin: 8px 0; }
-
-html { scroll-padding-top: 170px; }
-section { scroll-margin-top: 170px; }
