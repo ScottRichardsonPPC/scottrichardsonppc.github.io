@@ -42,6 +42,17 @@ footer a { color: var(--blue); }
 .leaflet-control-layers-expanded { padding: 4px 8px; font-size: 13px; }
 @media (max-width: 800px) { .leaflet-control-layers-expanded { font-size: 12px; padding: 3px 6px; } }
 
+.best-legend { background: rgba(255,255,255,.92); padding: 6px 8px; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,.25); font-size: 12px; line-height: 1.4; color: #1d2433; }
+.best-legend .lg { display: flex; align-items: center; gap: 6px; }
+.best-legend .dot { display: inline-block; border-radius: 50%; flex: 0 0 auto; }
+.best-legend .dot.gold-lg { width: 12px; height: 12px; background: #ffbf00; border: 1.5px solid #7a5200; }
+.best-legend .dot.gold { width: 10px; height: 10px; background: #ffc93c; border: 1.5px solid #9a6b00; }
+.best-legend .dot.star3 { width: 7px; height: 7px; background: #ffe9a8; border: 1px solid #c9a227; }
+.marker-cluster-gold { background-color: rgba(255, 201, 60, 0.55); }
+.marker-cluster-gold div { background-color: rgba(154, 107, 0, 0.85); color: #fff; }
+.marker-cluster-star3 { background-color: rgba(255, 233, 168, 0.55); }
+.marker-cluster-star3 div { background-color: rgba(201, 162, 39, 0.8); color: #fff; }
+
 .site-nav { display:flex; gap:4px; margin: 0 0 10px; }
 .site-nav a { padding:6px 12px; border-radius:999px; text-decoration:none; color:var(--blue,#2f5fb3); border:1px solid #c8d0dd; background:#fff; font-weight:600; font-size:.92rem; }
 .site-nav a.on, .site-nav a[aria-current="page"] { background:var(--blue,#2f5fb3); color:#fff; border-color:var(--blue,#2f5fb3); }

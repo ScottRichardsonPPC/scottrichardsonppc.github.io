@@ -11,8 +11,16 @@
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: ESRI })]);
   const topo = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: ESRI });
   const bestLayer = L.layerGroup();
-  window.PPCMAP = { map, bestLayer };   // for testing
-  L.control.layers({ 'Street map': street, 'Satellite': sat, 'Topographic': topo }, { 'Best-of photos (Lightroom picks)': bestLayer }, { position: 'topright', collapsed: false }).addTo(map);
+  window.PPCMAP = { map, bestLayer };
+  L.control.layers({ 'Street map': street, 'Satellite': sat, 'Topographic': topo }, { 'Best-of photos (4–5★)': bestLayer }, { position: 'topright', collapsed: false }).addTo(map);
+  const legend = L.control({ position: 'bottomleft' });
+  legend.onAdd = function () {
+    const d = L.DomUtil.create('div', 'best-legend');
+    d.innerHTML = '<div class="lg"><span class="dot gold-lg"></span> 5-star, posted on Facebook</div>'
+      + '<div class="lg"><span class="dot gold"></span> 4-star, posted on Facebook</div>';
+    return d;
+  };
+  legend.addTo(map);
   let FL = [], ZONES = [], pick = null, pickMarker = null, circle = null, resLayer = L.layerGroup().addTo(map), hiLayer = L.layerGroup().addTo(map), phLayer = L.layerGroup().addTo(map), lastHits = [], selId = null;
   const yearsOn = new Set();
 
@@ -36,7 +44,7 @@
       const bp = (f.bp || []).map(p => ({ t: p[0], la: p[1] / 1e5, lo: p[2] / 1e5, r: p[3], pk: p[4], hd: p[5], agl: p[6], sub: p[7] || [], u: p[8] })).filter(p => !inZone(p.la, p.lo));
       return Object.assign(f, { y: +f.d.slice(0, 4), segs, pp, bp, bb: [s0, w0, n0, e0] });
     });
-    FL.forEach(f => f.bp.forEach(p => bestPin(p, f, bestLayer, 4)));
+    FL.forEach(f => f.bp.forEach(p => bestPin(p, f, bestLayer)));
     const yrs = [...new Set(FL.map(f => f.y))].sort();
     yrs.forEach(y => yearsOn.add(y));
     $('years').innerHTML = yrs.map(y => `<label><input type="checkbox" value="${y}" checked>${y}</label>`).join('');
@@ -109,7 +117,7 @@
       if (near.length) ph += `<div class="photos">📷 <b>${near.length} photo${near.length > 1 ? 's' : ''} taken within ${$('radius').selectedOptions[0].textContent}</b>: ` +
         near.slice(0, 6).map(p => `<a href="${photoUrl(p.id)}" target="_blank" rel="noopener">${fmtTime(p.t)}</a> (${fmtDist(hav(p.la, p.lo, pick[0], pick[1]))})`).join(' · ') + (near.length > 6 ? ` · +${near.length - 6} more on the map` : '') + '</div>';
       if ((f.ph || []).length) ph += `<div class="photos">Facebook photo post${f.ph.length > 1 ? 's' : ''} from this flight: ` + f.ph.slice(0, 4).map(p => `<a href="${esc(p.u)}" target="_blank" rel="noopener">${fmtDate(p.pd)}</a> (${p.n} photo${p.n > 1 ? 's' : ''})`).join(' · ') + (f.ph.length > 4 ? ` · +${f.ph.length - 4} more` : '') + '</div>';
-      if (f.lr) ph += `<div class="photos lr">🖼️ ${f.lr.n.toLocaleString()} photo${f.lr.n > 1 ? 's' : ''} in Scott's photo library from this flight` + (f.lr.np ? ` (${f.lr.np} posted)` : '') + (f.bp.length ? `, ${f.bp.length} best-of shown on the map when selected` : '') +
+      if (f.lr) ph += `<div class="photos lr">🖼️ ${f.lr.n.toLocaleString()} photo${f.lr.n > 1 ? 's' : ''} in Scott's photo library from this flight` + (f.lr.np ? ` (${f.lr.np} posted)` : '') + (f.bp.length ? `, ${f.bp.length} best-of (4–5★, posted) shown on the map when selected` : '') +
         (f.lr.lab ? ` · ${esc(f.lr.lab)}` : '') + (f.lr.sub.length ? `<br><span class="note">Possible subjects (a guess from the camera's direction): ${f.lr.sub.map(esc).join(', ')}</span>` : '') + '</div>';
       li.innerHTML = `<div class="r1"><span>${fmtDate(f.d)}</span><span>${fmtDist(c.d)} away</span></div>
         <div class="r2">Closest about ${fmtTime(c.t)} ET · ${ht}</div>
@@ -128,7 +136,7 @@
     const lines = h.f.segs.map(g => L.polyline([...g.la].map((a, i) => [a, g.lo[i]]), { color: '#f28c18', weight: 4, opacity: 0.95 }).addTo(hiLayer));
     L.circleMarker([h.c.la, h.c.lo], { radius: 6, color: '#b3261e', fillColor: '#fff', fillOpacity: 1, weight: 3 }).bindTooltip(`Closest: ${fmtDist(h.c.d)}, about ${fmtTime(h.c.t)} ET`).addTo(hiLayer);
     h.f.pp.forEach(p => photoPin(p, hiLayer, 3.5));
-    h.f.bp.forEach(p => bestPin(p, h.f, hiLayer, 5));
+    h.f.bp.forEach(p => bestPin(p, h.f, hiLayer));
     const b = L.featureGroup(lines).getBounds().extend(pick);
     map.fitBounds(b, { padding: [24, 24], maxZoom: 14 });
     if (window.innerWidth < 800) $('map').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -140,11 +148,16 @@
       .bindPopup(`📷 Photo taken about ${fmtTime(p.t)} ET, ${new Date(p.t * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'America/New_York' })}<br><a href="${photoUrl(p.id)}" target="_blank" rel="noopener">Open on Facebook</a>`).addTo(layer);
   }
 
-  function bestPin(p, f, layer, r) {
+  function bestStyle(p) {
+    if (p.r >= 5) return { radius: 7, color: '#7a5200', weight: 1.6, fillColor: '#ffbf00', fillOpacity: 0.95 };
+    return { radius: 5.5, color: '#9a6b00', weight: 1.5, fillColor: '#ffc93c', fillOpacity: 0.95 };
+  }
+  function bestPin(p, f, layer) {
     const d = new Date(p.t * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'America/New_York' });
     const bits = [p.hd ? `camera facing ${esc(p.hd)}` : '', p.agl >= 0 ? (p.agl < 100 ? 'under 100 ft up' : `about ${(Math.round(p.agl / 50) * 50).toLocaleString()} ft up`) : ''].filter(Boolean).join(', ');
-    L.circleMarker([p.la, p.lo], { radius: r, color: '#9a6b00', weight: 1.5, fillColor: '#ffc93c', fillOpacity: 0.95 })
-      .bindPopup(`⭐ Best-of photo (${p.pk ? 'pick' : p.r + '★'}), about ${fmtTime(p.t)} ET, ${d}<br>Aircraft position when taken${bits ? ' · ' + bits : ''}` +
+    const label = (p.r >= 5 ? '5★' : '4★') + (p.pk ? ', pick' : '');
+    L.circleMarker([p.la, p.lo], bestStyle(p))
+      .bindPopup(`⭐ Best-of photo (${label}), about ${fmtTime(p.t)} ET, ${d}<br>Aircraft position when taken${bits ? ' · ' + bits : ''}` +
         (p.sub.length ? `<br><i>Possible subjects (guess): ${p.sub.map(esc).join(', ')}</i>` : '') +
         (p.u ? `<br><a href="${esc(p.u)}" target="_blank" rel="noopener">Open on Facebook</a>` : '<br>Not posted online') + `<br><span style="color:#666">${esc(f.ac)} flight, ${fmtDate(f.d)}</span>`).addTo(layer);
   }
